@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Code\Logic\Graph.cs">
+    <Files>
+      <File FileName="Assets\Code\Logic\GraphController.cs" Line="18" Column="17" />
+      <File FileName="Assets\Code\Logic\Node.cs" Line="21" Column="3" />
+      <File FileName="Assets\Code\Logic\Edge.cs" Line="13" Column="3" />
+      <File FileName="Assets\Code\Logic\Graph.cs" Line="100" Column="48" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
