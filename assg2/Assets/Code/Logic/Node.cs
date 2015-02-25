@@ -23,4 +23,16 @@ public class Node {
 		this.AddEdge (e);
 	}
 
+	public bool hasEdge(Node n)
+	{
+		foreach (Edge e in edges) 
+		{
+			if(e.GetConnectingNode(n) == this)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
