@@ -6,6 +6,7 @@ public class Node {
 
 	public Vector3 position;
 	public IList<Edge> edges = new List<Edge>();
+	public GameObject obj;
 
 	public Node(Vector3 position)
 	{
@@ -27,12 +28,29 @@ public class Node {
 	{
 		foreach (Edge e in edges) 
 		{
-			if(e.GetConnectingNode(n) == this)
+			Node connecting = e.GetConnectingNode(n);
+
+			if(connecting != null && connecting.position == this.position)
 			{
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public Node[] getAllConnectingNodes()
+	{
+		Node[] nodes = new Node[edges.Count];
+		for(int i = 0; i < nodes.Length; i++)
+		{
+			nodes[i] = edges[i].end;
+		}
+		return nodes;
+	}
+
+	public void setGameObject(GameObject obj)
+	{
+		this.obj = obj;
 	}
 
 }

@@ -7,16 +7,17 @@ public class Graph {
 	const float TILE_SIZE = 0.25f;
 	public List<Edge> edges = new List<Edge>();
 	public List<Node> nodes = new List<Node>();
-	
+
+	public static Vector3 originPosition = new Vector3 (2.75f, 0, 2.25f);
 	// Use this for initialization
 	public Graph () {
-		Node initial = CreateNode(new Vector3(0, 0, 0), null);
-		nodes.Add (initial);
+		CreateNode(Graph.originPosition);
 	}
-	
-	
+
 	public void addEdge(Edge e)
 	{
+		float cost = Vector3.Distance (e.end.position, Graph.originPosition);
+		e.setCost(cost);
 		edges.Add (e);
 		GraphController.makeLine (e.start.position, e.end.position);
 	}
@@ -48,34 +49,31 @@ public class Graph {
 		}
 	}
 
-
 	void Generate(Node origin, Vector3 position)
 	{
-		RaycastHit hit;
-		if (!Physics.SphereCast (origin.position, TILE_SIZE / 2, position - origin.position, out hit, Vector3.Distance (origin.position, position))) {
-			Node topNode = CreateNode (position, origin);
-			Edge topEdge = new Edge (topNode, origin);
-			addEdge (topEdge);
+		Collider[] wallColliders = Physics.OverlapSphere(position, TILE_SIZE / 2.0f, LayerMask.GetMask("Wall"));
+		if (wallColliders.Length > 0)
+			return;
+
+		Collider[] nodeCollider = Physics.OverlapSphere(position, TILE_SIZE / 2.0f, LayerMask.GetMask("node"));
+		if(nodeCollider.Length == 0)
+		{
+			CreateNode (position, origin);
 		} else {
-			if(hit.collider.gameObject.tag == "graphBlock")
-			{
-				CreateEdgeFromOldNode(origin, position);
-			}
+			//There is a node here so create edge
+			CreateEdgeFromOldNode(origin, position);
 		}
 	}
-	Node CreateNode(Vector3 nodePosition, Node source)
+	void CreateNode(Vector3 nodePosition, Node source = null)
 	{
+		//Create the node.
 		Node n = new Node (nodePosition);
-		//Create object for graph
-		GraphController.makeBlock (nodePosition,n);
-		//Check if position has been taken
-		
-		
-		if (source != null) {
-			Edge e = new Edge(n,source);
-			addEdge(e);
-		}
 
+		//Create object for graph
+		n.setGameObject(GraphController.makeBlock (nodePosition,n));
+
+		this.addNode (n);
+		
 		//Top
 		Vector3 top = new Vector3(nodePosition.x, 0,nodePosition.z + TILE_SIZE);
 		Generate (n, top);
@@ -107,7 +105,6 @@ public class Graph {
 		//bottom-Right
 		Vector3 bottomR= new Vector3(nodePosition.x + TILE_SIZE, 0,nodePosition.z - TILE_SIZE);
 		Generate (n, bottomR);
-		
-		return n;
+
 	}
 }
