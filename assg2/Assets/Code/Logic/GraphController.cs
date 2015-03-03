@@ -9,19 +9,12 @@ public class GraphController : MonoBehaviour {
 	// Use this for initialization
 	public Node npcPosition;
 
-	public List<Edge> open_list = new List<Edge> ();
-	public IList<Edge> closed_list = new List<Edge> ();
+	public IList<Node> open_list = new List<Node> ();
+	public IList<Node> closed_list = new List<Node> ();
 	void Start () {
 		graph = new Graph ();
 		start = graph.FindNode (new Vector3 (-3.5f,0,-4.0f));
-
-		open_list.Sort(
-			delegate(Edge e1, Edge e2)
-			{
-			return e1.getCost().CompareTo(e2.getCost());
-			}
-		);
-
+	
 		changeObjColor (start.obj, Color.cyan);
 		StartCoroutine (AStar ());
 	}
@@ -37,27 +30,7 @@ public class GraphController : MonoBehaviour {
 		Node current_node = start;
 		while (!reached_goal) 
 		{
-			foreach(Edge edge in current_node.edges)
-			{
-				Debug.Log(edge.end.position);
-				if(!open_list.Contains(edge) && !closed_list.Contains(edge))
-				{
-					open_list.Add(edge);
-					changeObjColor(edge.end.obj, Color.magenta);
-				}
-			}
-			open_list.Sort();
 
-			current_node = open_list[0].end;
-			closed_list.Add(open_list[0]);
-			open_list.RemoveAt(0);
-
-			changeObjColor(current_node.obj,Color.cyan);
-
-			if(current_node.position == Graph.originPosition)
-			{
-				reached_goal = true;
-			}
 
 			yield return new WaitForSeconds (10.0f);
 		}

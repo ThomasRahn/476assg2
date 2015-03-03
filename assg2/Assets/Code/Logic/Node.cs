@@ -28,9 +28,7 @@ public class Node {
 	{
 		foreach (Edge e in edges) 
 		{
-			Node connecting = e.GetConnectingNode(n);
-
-			if(connecting != null && connecting.position == this.position)
+			if(e.end == n)
 			{
 				return true;
 			}

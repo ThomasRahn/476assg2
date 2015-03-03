@@ -16,17 +16,6 @@ public class Edge : IComparable {
 		start.AddEdge (this);
 	}
 
-	public Node GetConnectingNode(Node n)
-	{
-		if (n == start) {
-			return end;
-		} else if (n == end) {
-			return start;
-		} else {
-			return null;
-		}
-	}
-
 	public void setCost(float c)
 	{
 		if(c >= 0)

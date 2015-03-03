@@ -43,7 +43,7 @@ public class Graph {
 		{
 			if(!newNode.hasEdge(n))
 			{
-				Edge e = new Edge(newNode,n);
+				Edge e = new Edge(n,newNode);
 				addEdge(e);
 			}
 		}
@@ -59,7 +59,9 @@ public class Graph {
 		if(nodeCollider.Length == 0)
 		{
 			CreateNode (position, origin);
-		} else {
+		} 
+		else 
+		{
 			//There is a node here so create edge
 			CreateEdgeFromOldNode(origin, position);
 		}
@@ -73,7 +75,12 @@ public class Graph {
 		n.setGameObject(GraphController.makeBlock (nodePosition,n));
 
 		this.addNode (n);
-		
+
+		if (source != null) {
+			Edge e = new Edge(source,n);
+			this.addEdge(e);
+		}
+
 		//Top
 		Vector3 top = new Vector3(nodePosition.x, 0,nodePosition.z + TILE_SIZE);
 		Generate (n, top);
