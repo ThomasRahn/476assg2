@@ -39,12 +39,10 @@ public class Graph {
 	public void CreateEdgeFromOldNode(Node n, Vector3 position)
 	{
 		Node newNode = this.FindNode(position);
-		if(newNode != null)
-		{
-			if(!newNode.hasEdge(n))
-			{
-				Edge e = new Edge(n,newNode);
-				addEdge(e);
+		if (newNode != null) {
+			if (!n.hasEdge (newNode)) {
+				Edge e = new Edge (n, newNode);
+				addEdge (e);
 			}
 		}
 	}
@@ -100,7 +98,7 @@ public class Graph {
 		//Right
 		Vector3 right= new Vector3(nodePosition.x + TILE_SIZE, 0,nodePosition.z);
 		Generate (n, right);
-		
+
 		//bottom
 		Vector3 bottom = new Vector3(nodePosition.x, 0,nodePosition.z - TILE_SIZE);
 		Generate (n, bottom);

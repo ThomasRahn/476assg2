@@ -7,15 +7,18 @@ public class Node {
 	public Vector3 position;
 	public IList<Edge> edges = new List<Edge>();
 	public GameObject obj;
+	public float cost;
 
 	public Node(Vector3 position)
 	{
 		this.position = position;
+		this.cost = Vector3.Distance (position, Graph.originPosition);
 	}
 
 	public void AddEdge(Edge e)
 	{
-		this.edges.Add(e);
+		if(e.start.position == this.position)
+			this.edges.Add(e);
 	}
 
 	public void CreateEdge(Node n)
@@ -28,7 +31,7 @@ public class Node {
 	{
 		foreach (Edge e in edges) 
 		{
-			if(e.end == n)
+			if(e.end.position == n.position)
 			{
 				return true;
 			}
