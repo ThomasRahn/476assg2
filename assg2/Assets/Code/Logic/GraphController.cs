@@ -25,6 +25,8 @@ public class GraphController : MonoBehaviour {
 
 	void Start () {
 		graph = new Graph ();
+		Debug.Log (graph.edges.Count);
+		Debug.Log (graph.nodes.Count);
 		start = graph.FindNode (new Vector3 (-3.5f,0,-4.0f));
 		current = algorithm.euclidean;
 		changeObjColor (start.obj, Color.cyan);
@@ -34,12 +36,10 @@ public class GraphController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.A) && current != algorithm.euclidean) {
-			Debug.Log("euc");
 			current = algorithm.euclidean;
 			Reset();
 			euclidean();
 		} else if (Input.GetKeyDown(KeyCode.D) && current != algorithm.dijkstra) {
-			Debug.Log("dij");
 			current = algorithm.dijkstra;
 			Reset();
 			dijkstra();
@@ -57,20 +57,17 @@ public class GraphController : MonoBehaviour {
 		}
 		closed_list.Clear ();
 
-
 		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 	void euclidean()
 	{
-		bool reached_goal = false;
-		Node current_node = null;
+		/*Node current_node = null;
+		open_list.Clear ();
+		closed_list.Clear ();
 		open_list.Add (start);
-		while (!reached_goal) 
+
+		while (open_list.Count != 0) 
 		{
-			if(open_list.Count == 0)
-			{
-				break;
-			}
 			current_node = GetLowerCost();
 			if(current_node.position == Graph.originPosition)
 			{
@@ -90,33 +87,78 @@ public class GraphController : MonoBehaviour {
 			open_list.Remove(current_node);
 			closed_list.Add(current_node);
 		}
+		*/
+		IList<Node> pathList = new List<Node>();
+		open_list.Add (start);
+		
+		while (open_list[0].position != Graph.originPosition) {
+			Node node = GetLowerCost();
+			if(node.position == Graph.originPosition)
+			{
+				break;
+			}
+			Node[] neighborList = node.getAllConnectingNodes();
+			for (int i = 0; i < neighborList.Length; i++) {
+				if (!closed_list.Contains (neighborList[i]) && !open_list.Contains (neighborList[i])) {
+					neighborList[i].prevNode = node;
+					open_list.Add(neighborList[i]);
+					Inspect(neighborList[i]);
+				}
+			}
+			closed_list.Add (node);
+			open_list.Remove(node);
+		}
+		
+		pathList.Add (open_list [0]);
+		while(true) {
+			
+			if (pathList[pathList.Count - 1].prevNode.position == start.position) {
+				pathList.Add (pathList[pathList.Count - 1].prevNode);
+				break;
+			}
+			else {
+				pathList.Add (pathList[pathList.Count - 1].prevNode);
+			}
+		}
+
+		foreach (Node n in pathList) {
+			GoToNode(n);
+		}
 	}
 
 	void dijkstra()
 	{
-		bool reached_goal = false;
-		Node current_node = null;
+		IList<Node> pathList = new List<Node>();
 		open_list.Add (start);
-		while (!reached_goal) {
-			if (open_list.Count == 0) {
-				break;
-			}
-			current_node = open_list [0];
-			if (current_node.position == Graph.originPosition) {
-				break;
-			}
-			foreach (Node n in current_node.getAllConnectingNodes()) {
-				if (!closed_list.Contains (n) && !open_list.Contains (n)) {
-					open_list.Add (n);
-					if (n.position != Graph.originPosition)
-						Inspect (n);
+		
+		while (open_list[0].position != Graph.originPosition) {
+			Node node = open_list[0];
+			Node[] neighborList = open_list[0].getAllConnectingNodes();
+			for (int i = 0; i < neighborList.Length; i++) {
+				if (!closed_list.Contains (neighborList[i]) && !open_list.Contains (neighborList[i])) {
+					neighborList[i].prevNode = node;
+					open_list.Add(neighborList[i]);
+					Inspect(neighborList[i]);
 				}
 			}
+			closed_list.Add (node);
+			open_list.Remove(node);
+		}
 
-			GoToNode(current_node);
-			open_list.Remove(current_node);
-			closed_list.Add(current_node);
+		pathList.Add (open_list [0]);
+		while(true) {
+			
+			if (pathList[pathList.Count - 1].prevNode.position == start.position) {
+				pathList.Add (pathList[pathList.Count - 1].prevNode);
+				break;
+			}
+			else {
+				pathList.Add (pathList[pathList.Count - 1].prevNode);
+			}
+		}
 
+		foreach (Node n in pathList) {
+			GoToNode(n);
 		}
 	}
 	private Node GetLowerCost()

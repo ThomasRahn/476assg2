@@ -8,6 +8,7 @@ public class Node {
 	public IList<Edge> edges = new List<Edge>();
 	public GameObject obj;
 	public float cost;
+	public Node prevNode;
 
 	public Node(Vector3 position)
 	{
