@@ -4,16 +4,45 @@ using System.Collections.Generic;
 
 public class Node {
 
+	public enum Cluster
+	{
+		room1,
+		room2,
+		room3,
+		corridor
+	}
+
+
 	public Vector3 position;
 	public IList<Edge> edges = new List<Edge>();
 	public GameObject obj;
 	public float cost;
+	public int g_heuristic;
+	public float heuristic;
 	public Node prevNode;
+
+	public Cluster cluster;
 
 	public Node(Vector3 position)
 	{
 		this.position = position;
-		this.cost = Vector3.Distance (position, Graph.originPosition);
+		ResetCost ();
+
+		if(position.z < -1.85f && position.x < 2.0f)
+		{
+			cluster = Cluster.room1;
+		}
+		else if (position.z > -0.9f && position.x > 1.85f)
+		{
+			cluster = Cluster.room2;
+		}
+		else if (position.z > 2.1f && position.x < 0.0f)
+		{
+			cluster = Cluster.room3;
+		}else{
+			cluster = Cluster.corridor;
+		}
+		
 	}
 
 	public void AddEdge(Edge e)
@@ -55,4 +84,8 @@ public class Node {
 		this.obj = obj;
 	}
 
+	public void ResetCost()
+	{
+		this.cost = Vector3.Distance (position, Graph.originPosition);
+	}
 }

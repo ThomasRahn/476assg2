@@ -52,6 +52,7 @@
      <Compile Include="Assets\Code\Logic\Node.cs" />
      <Compile Include="Assets\Code\PoV\PoVController.cs" />
      <Compile Include="Assets\Code\Scripts\GraphElement.cs" />
+     <Compile Include="Assets\Code\Scripts\NPCMovement.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.2/UnityEngine.UI.dll</HintPath>
  </Reference>

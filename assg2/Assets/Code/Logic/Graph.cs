@@ -4,14 +4,15 @@ using System.Collections.Generic;
 
 public class Graph {
 	
-	const float TILE_SIZE = 0.25f;
+	const float TILE_SIZE = 0.4f;
 	public List<Edge> edges = new List<Edge>();
 	public List<Node> nodes = new List<Node>();
 
 	public static Vector3 originPosition = new Vector3 (2.75f, 0, 2.25f);
 	// Use this for initialization
-	public Graph () {
-		CreateNode(Graph.originPosition);
+	public Graph (bool PointOfView = false) {
+		if(!PointOfView)
+			CreateNode(Graph.originPosition);
 	}
 
 	public void addEdge(Edge e)
