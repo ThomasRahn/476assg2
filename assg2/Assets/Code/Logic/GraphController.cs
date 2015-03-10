@@ -7,6 +7,7 @@ public class GraphController : MonoBehaviour {
 
 	public Graph graph = null;
 	public Node start = null;
+
 	// Use this for initialization
 	public Node npcPosition;
 
@@ -20,6 +21,10 @@ public class GraphController : MonoBehaviour {
 
 	public Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>> lookupTable = new Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>>();
 
+	public Node Room1Center;
+	public Node Room2Center;
+	public Node Room3Center;
+
 	public enum algorithm {
 		dijkstra,
 		euclidean,
@@ -28,20 +33,22 @@ public class GraphController : MonoBehaviour {
 
 	void Start () {
 		graph = new Graph ();
-		CreateNPC ();
+
+		//Set up cluster nodes
+		Room1Center = graph.FindNode (new Vector3 (-0.05f, 0, -3.75f));
+		Room2Center = graph.FindNode (new Vector3 (3.55f, 0, 0.65f));
+		Room3Center = graph.FindNode (new Vector3 (-1.65f, 0, 3.85f));
+
+		start = graph.FindNode (new Vector3 (-3.25f,0,-2.95f));
+		ObjectCreator.changeObjColor (start.obj, Color.cyan);
+
+		NPC = ObjectCreator.CreateNPC (start);
+
 		GenerateLookUpTable ();
 		current = algorithm.euclidean;
 		euclidean ();
 	}
 
-	void CreateNPC()
-	{
-		start = graph.FindNode (new Vector3 (-3.25f,0,-2.95f));
-		changeObjColor (start.obj, Color.cyan);
-		NPC = Instantiate (Resources.Load ("Prefabs/Npc"), start.position + new Vector3(0,1,0), Quaternion.identity) as GameObject;
-		NPC.GetComponent<NPCMovement> ().currentPosition = start;
-
-	}
 	// Update is called once per frame
 	void Update () {
 		if (Input.GetKeyDown(KeyCode.A) && current != algorithm.euclidean) {
@@ -58,7 +65,6 @@ public class GraphController : MonoBehaviour {
 			current = algorithm.cluster;
 			//start = NPC.GetComponent<NPCMovement>().nextNode;
 			Reset();
-			cluster();
 		}
 		behaviourType.text = "Algorith: " + current.ToString ();
 
@@ -86,10 +92,10 @@ public class GraphController : MonoBehaviour {
 						break;
 					case algorithm.cluster:
 						Reset();
-						cluster();
+						//cluster();
 						break;
 					}
-					changeObjColor(node.obj,Color.red);
+					ObjectCreator.changeObjColor(node.obj,Color.red);
 				}
 			}
 		}
@@ -104,7 +110,7 @@ public class GraphController : MonoBehaviour {
 	private void Reset()
 	{
 		foreach (Node n in graph.nodes) {
-			changeObjColor (n.obj, GraphController.default_color);
+			ObjectCreator.changeObjColor (n.obj, GraphController.default_color);
 			n.ResetCost();
 			n.heuristic = n.cost;
 		}
@@ -112,7 +118,7 @@ public class GraphController : MonoBehaviour {
 		open_list.Clear ();
 		closed_list.Clear ();
 
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 
 	void euclidean()
@@ -136,7 +142,7 @@ public class GraphController : MonoBehaviour {
 			}else{
 				foreach(Node node in current_node.getAllConnectingNodes())
 				{
-					Inspect(node);
+					ObjectCreator.Inspect(node);
 
 					if(!open_list.Contains(node) && !closed_list.Contains(node))
 					{
@@ -162,11 +168,11 @@ public class GraphController : MonoBehaviour {
 		while (current_node.prevNode != null && counter < 200) 
 		{
 			counter++;
-			changeObjColor(current_node.obj, Color.cyan);
+			ObjectCreator.changeObjColor(current_node.obj, Color.cyan);
 			actual_path.Add(current_node);
 			current_node = current_node.prevNode;
 		}
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 		NPC.GetComponent<NPCMovement> ().path = actual_path;
 	}
 
@@ -182,7 +188,7 @@ public class GraphController : MonoBehaviour {
 				if (!closed_list.Contains (neighborList[i]) && !open_list.Contains (neighborList[i])) {
 					neighborList[i].prevNode = node;
 					open_list.Add(neighborList[i]);
-					Inspect(neighborList[i]);
+					ObjectCreator.Inspect(neighborList[i]);
 				}
 			}
 			closed_list.Add (node);
@@ -202,15 +208,10 @@ public class GraphController : MonoBehaviour {
 		}
 
 		foreach (Node n in pathList) {
-			GoToNode(n);
+			ObjectCreator.GoToNode(n);
 		}
 		NPC.GetComponent<NPCMovement> ().path = pathList;
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
-	}
-
-	void cluster()
-	{
-		
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 
 	private Node GetLowerCost()
@@ -227,45 +228,6 @@ public class GraphController : MonoBehaviour {
 		return node;
 	}
 
-	private void Inspect(Node node)
-	{
-		changeObjColor (node.obj, Color.magenta);
-	}
 
-	private void GoToNode(Node node)
-	{
-		changeObjColor (node.obj, Color.cyan);
-	}
-
-	private void changeObjColor(GameObject obj, Color c)
-	{
-		Transform cube = obj.transform.FindChild ("Cube");
-		if (cube != null) {
-			cube.renderer.material.color = c;
-		}
-	}
-
-	public static GameObject makeBlock(Vector3 position, Node n)
-	{
-
-		GameObject node = Instantiate(Resources.Load("Prefabs/Node"), position, Quaternion.identity)as GameObject;
-		node.GetComponent<GraphElement> ().setNode (n);
-		if (position == Graph.originPosition) {
-			node.transform.FindChild ("Cube").renderer.material.color = Color.red;
-		} else {
-			node.transform.FindChild ("Cube").renderer.material.color = GraphController.default_color;
-		}
-		return node;
-	}
-
-	public static void makeLine(Vector3 start, Vector3 end)
-	{
-		GameObject line = Instantiate(Resources.Load("Prefabs/Line"), new Vector3(0,-10,0), Quaternion.identity)as GameObject;
-		LineRenderer lineR = line.GetComponent<LineRenderer> ();
-		lineR.SetPosition (0, start + new Vector3(0,0.3f,0));
-		lineR.SetPosition (1, end + new Vector3(0,0.3f,0));
-		lineR.renderer.material.color = Color.red;
-
-	}
 
 }

@@ -20,7 +20,7 @@ public class Graph {
 		float cost = Vector3.Distance (e.end.position, Graph.originPosition);
 		e.setCost(cost);
 		edges.Add (e);
-		GraphController.makeLine (e.start.position, e.end.position);
+		ObjectCreator.makeLine (e.start.position, e.end.position);
 	}
 	
 	public void addNode(Node n)
@@ -71,7 +71,7 @@ public class Graph {
 		Node n = new Node (nodePosition);
 
 		//Create object for graph
-		n.setGameObject(GraphController.makeBlock (nodePosition,n));
+		n.setGameObject(ObjectCreator.makeBlock (nodePosition,n));
 
 		this.addNode (n);
 

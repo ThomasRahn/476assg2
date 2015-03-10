@@ -36,7 +36,7 @@ public class PoVController : MonoBehaviour {
 
 		for(int i = 0; i < nodes_gameobject.Length; i++)
 		{
-			changeObjColor(nodes_gameobject[i], default_color);
+			ObjectCreator.changeObjColor(nodes_gameobject[i], default_color);
 			for(int j = 0; j < nodes_gameobject.Length; j++)
 			{
 				if(i == j)
@@ -54,7 +54,8 @@ public class PoVController : MonoBehaviour {
 			}
 		}
 
-		CreateNPC ();
+		NPC = ObjectCreator.CreateNPC (start);
+
 		this.current = algorithm.euclidean;
 		euclidean ();
 	}
@@ -70,14 +71,6 @@ public class PoVController : MonoBehaviour {
 			graph.addNode(node);
 		}
 
-	}
-
-	void CreateNPC()
-	{
-		changeObjColor (start.obj, Color.cyan);
-		NPC = Instantiate (Resources.Load ("Prefabs/Npc"), start.position + new Vector3(0,1,0), Quaternion.identity) as GameObject;
-		NPC.GetComponent<NPCMovement> ().currentPosition = start;
-		
 	}
 	// Update is called once per frame
 	void Update () {
@@ -126,7 +119,7 @@ public class PoVController : MonoBehaviour {
 						cluster();
 						break;
 					}
-					changeObjColor(node.obj,Color.red);
+					ObjectCreator.changeObjColor(node.obj,Color.red);
 				}
 			}
 		}
@@ -135,7 +128,7 @@ public class PoVController : MonoBehaviour {
 	private void Reset()
 	{
 		foreach (Node n in graph.nodes) {
-			changeObjColor (n.obj, PoVController.default_color);
+			ObjectCreator.changeObjColor (n.obj, PoVController.default_color);
 			n.ResetCost();
 			n.heuristic = n.cost;
 		}
@@ -143,7 +136,7 @@ public class PoVController : MonoBehaviour {
 		open_list.Clear ();
 		closed_list.Clear ();
 		
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 	
 	void euclidean()
@@ -167,7 +160,7 @@ public class PoVController : MonoBehaviour {
 			}else{
 				foreach(Node node in current_node.getAllConnectingNodes())
 				{
-					Inspect(node);
+					ObjectCreator.Inspect(node);
 					
 					if(!open_list.Contains(node) && !closed_list.Contains(node))
 					{
@@ -193,11 +186,11 @@ public class PoVController : MonoBehaviour {
 		while (current_node.prevNode != null && counter < 200) 
 		{
 			counter++;
-			changeObjColor(current_node.obj, Color.cyan);
+			ObjectCreator.changeObjColor(current_node.obj, Color.cyan);
 			actual_path.Add(current_node);
 			current_node = current_node.prevNode;
 		}
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 		NPC.GetComponent<NPCMovement> ().path = actual_path;
 	}
 	
@@ -213,7 +206,7 @@ public class PoVController : MonoBehaviour {
 				if (!closed_list.Contains (neighborList[i]) && !open_list.Contains (neighborList[i])) {
 					neighborList[i].prevNode = node;
 					open_list.Add(neighborList[i]);
-					Inspect(neighborList[i]);
+					ObjectCreator.Inspect(neighborList[i]);
 				}
 			}
 			closed_list.Add (node);
@@ -232,10 +225,10 @@ public class PoVController : MonoBehaviour {
 		}
 		
 		foreach (Node n in pathList) {
-			GoToNode(n);
+			ObjectCreator.GoToNode(n);
 		}
 		NPC.GetComponent<NPCMovement> ().path = pathList;
-		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 
 	void cluster()
@@ -255,23 +248,5 @@ public class PoVController : MonoBehaviour {
 				node = n;
 		}
 		return node;
-	}
-	
-	private void Inspect(Node node)
-	{
-		changeObjColor (node.obj, Color.magenta);
-	}
-	
-	private void GoToNode(Node node)
-	{
-		changeObjColor (node.obj, Color.cyan);
-	}
-	
-	private void changeObjColor(GameObject obj, Color c)
-	{
-		Transform cube = obj.transform.FindChild ("Cube");
-		if (cube != null) {
-			cube.renderer.material.color = c;
-		}
 	}
 }
