@@ -14,7 +14,7 @@ public class NPCMovement : MonoBehaviour {
 	public Vector3 Velocity = Vector3.zero;
 	public float MaxVelocity = 0.5f;
 	public float slowDown = 0.0f;
-
+	public float rotateSpeed = 100.0f;
 	// Use this for initialization
 	void Start () {
 	
@@ -37,8 +37,10 @@ public class NPCMovement : MonoBehaviour {
 			}
 		
 			if (nextNode != null) {
-				this.transform.rotation = Quaternion.LookRotation (nextNode.obj.transform.position - this.transform.position);
-				this.transform.position = Vector3.MoveTowards (this.transform.position, nextNode.position + new Vector3 (0, 0.5f, 0), Time.deltaTime);
+				this.transform.rotation = 
+					Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation (nextNode.obj.transform.position - this.transform.position),rotateSpeed * Time.deltaTime);
+				if(this.transform.forward == (nextNode.position - this.transform.position).normalized)
+					this.transform.position = Vector3.MoveTowards (this.transform.position, nextNode.position + new Vector3 (0, 0.5f, 0), Time.deltaTime);
 				//UpdatePosition();
 			}
 

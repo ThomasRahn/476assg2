@@ -10,7 +10,6 @@ public class PoVController : MonoBehaviour {
 		cluster
 	};
 
-
 	Graph graph;
 
 	public Text behaviourType;
@@ -24,6 +23,7 @@ public class PoVController : MonoBehaviour {
 	public IList<Node> closed_list = new List<Node> ();
 	public algorithm current;
 	private static Color default_color = Color.yellow;
+
 	// Use this for initialization
 	void Start () {
 		graph = new Graph (true);
@@ -31,10 +31,12 @@ public class PoVController : MonoBehaviour {
 
 		CreateNodes (nodes_gameobject);
 		Graph.originPosition = graph.nodes [Random.Range (0, graph.nodes.Count - 1)].position;
-		CreateNPC ();
+
+		start = graph.nodes [Random.Range (0, graph.nodes.Count - 1)];
 
 		for(int i = 0; i < nodes_gameobject.Length; i++)
 		{
+			changeObjColor(nodes_gameobject[i], default_color);
 			for(int j = 0; j < nodes_gameobject.Length; j++)
 			{
 				if(i == j)
@@ -51,6 +53,8 @@ public class PoVController : MonoBehaviour {
 
 			}
 		}
+
+		CreateNPC ();
 		this.current = algorithm.euclidean;
 		euclidean ();
 	}
@@ -70,7 +74,6 @@ public class PoVController : MonoBehaviour {
 
 	void CreateNPC()
 	{
-		start = graph.nodes [Random.Range (0, graph.nodes.Count - 1)];
 		changeObjColor (start.obj, Color.cyan);
 		NPC = Instantiate (Resources.Load ("Prefabs/Npc"), start.position + new Vector3(0,1,0), Quaternion.identity) as GameObject;
 		NPC.GetComponent<NPCMovement> ().currentPosition = start;
@@ -88,8 +91,13 @@ public class PoVController : MonoBehaviour {
 			start = NPC.GetComponent<NPCMovement>().nextNode;
 			Reset();
 			dijkstra();
+		}else if (Input.GetKeyDown(KeyCode.C) && current != algorithm.cluster) {
+			current = algorithm.cluster;
+			//start = NPC.GetComponent<NPCMovement>().nextNode;
+			Reset();
+			cluster();
 		}
-		//behaviourType.text = "Algorith: " + current.ToString ();
+		behaviourType.text = "Algorith: " + current.ToString ();
 		
 		if (Input.GetMouseButtonDown (0)) 
 		{
@@ -112,6 +120,10 @@ public class PoVController : MonoBehaviour {
 					case algorithm.euclidean:
 						Reset();
 						euclidean();
+						break;
+					case algorithm.cluster:
+						Reset();
+						cluster();
 						break;
 					}
 					changeObjColor(node.obj,Color.red);
@@ -210,7 +222,6 @@ public class PoVController : MonoBehaviour {
 		
 		pathList.Add (open_list [0]);
 		while(true) {
-			
 			if (pathList[pathList.Count - 1].prevNode.position == start.position) {
 				pathList.Add (pathList[pathList.Count - 1].prevNode);
 				break;
@@ -226,7 +237,12 @@ public class PoVController : MonoBehaviour {
 		NPC.GetComponent<NPCMovement> ().path = pathList;
 		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
-	
+
+	void cluster()
+	{
+
+	}
+
 	private Node GetLowerCost()
 	{
 		if (open_list.Count == 0) {

@@ -18,6 +18,8 @@ public class GraphController : MonoBehaviour {
 	public Text behaviourType;
 	public GameObject NPC;
 
+	public Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>> lookupTable = new Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>>();
+
 	public enum algorithm {
 		dijkstra,
 		euclidean,
@@ -27,9 +29,9 @@ public class GraphController : MonoBehaviour {
 	void Start () {
 		graph = new Graph ();
 		CreateNPC ();
+		GenerateLookUpTable ();
 		current = algorithm.euclidean;
 		euclidean ();
-		//dijkstra ();
 	}
 
 	void CreateNPC()
@@ -52,6 +54,11 @@ public class GraphController : MonoBehaviour {
 			start = NPC.GetComponent<NPCMovement>().nextNode;
 			Reset();
 			dijkstra();
+		}else if (Input.GetKeyDown(KeyCode.C) && current != algorithm.cluster) {
+			current = algorithm.cluster;
+			//start = NPC.GetComponent<NPCMovement>().nextNode;
+			Reset();
+			cluster();
 		}
 		behaviourType.text = "Algorith: " + current.ToString ();
 
@@ -77,6 +84,10 @@ public class GraphController : MonoBehaviour {
 						Reset();
 						euclidean();
 						break;
+					case algorithm.cluster:
+						Reset();
+						cluster();
+						break;
 					}
 					changeObjColor(node.obj,Color.red);
 				}
@@ -84,6 +95,12 @@ public class GraphController : MonoBehaviour {
 		}
 
 	}
+
+	private void GenerateLookUpTable()
+	{
+
+	}
+
 	private void Reset()
 	{
 		foreach (Node n in graph.nodes) {
@@ -189,6 +206,11 @@ public class GraphController : MonoBehaviour {
 		}
 		NPC.GetComponent<NPCMovement> ().path = pathList;
 		changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+	}
+
+	void cluster()
+	{
+		
 	}
 
 	private Node GetLowerCost()
