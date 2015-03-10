@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using System.
 
 public class GraphController : MonoBehaviour {
 
@@ -19,11 +20,7 @@ public class GraphController : MonoBehaviour {
 	public Text behaviourType;
 	public GameObject NPC;
 
-	public Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>> lookupTable = new Dictionary<Node.Cluster, Dictionary<Node.Cluster,float>>();
-
-	public Node Room1Center;
-	public Node Room2Center;
-	public Node Room3Center;
+	public Tuple lookUpTable = new Tuple<Node.Cluster,Node.Cluster, float>();
 
 	public enum algorithm {
 		dijkstra,
@@ -33,11 +30,6 @@ public class GraphController : MonoBehaviour {
 
 	void Start () {
 		graph = new Graph ();
-
-		//Set up cluster nodes
-		Room1Center = graph.FindNode (new Vector3 (-0.05f, 0, -3.75f));
-		Room2Center = graph.FindNode (new Vector3 (3.55f, 0, 0.65f));
-		Room3Center = graph.FindNode (new Vector3 (-1.65f, 0, 3.85f));
 
 		start = graph.FindNode (new Vector3 (-3.25f,0,-2.95f));
 		ObjectCreator.changeObjColor (start.obj, Color.cyan);
@@ -212,6 +204,26 @@ public class GraphController : MonoBehaviour {
 		}
 		NPC.GetComponent<NPCMovement> ().path = pathList;
 		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+	}
+
+	private void GenerateLookUp()
+	{
+		//5 sections, Room1, Room2, Room3, Corridor1, Corridor2
+		List<Node> room1_nodes = graph.GetRoomNodes (Node.Cluster.room1);
+		List<Node> room2_nodes = graph.GetRoomNodes (Node.Cluster.room2);
+
+		float lowest_distance_r1_r2 = 0.0f;
+		foreach (Node n in room1_nodes) {
+			foreach(Node n2 in room2_nodes){
+				float distance = Vector3.Distance(n.position,n2.position);
+				if(distance < lowest_distance_r1_r2 || lowest_distance_r1_r2 <= 0.0f)
+				{
+					lowest_distance_r1_r2 = distance;
+				}
+			}
+		}
+
+		 
 	}
 
 	private Node GetLowerCost()

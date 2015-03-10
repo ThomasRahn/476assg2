@@ -113,4 +113,17 @@ public class Graph {
 		Generate (n, bottomR);
 
 	}
+
+	public List<Node> GetRoomNodes(Node.Cluster cluster)
+	{
+		IList<Node> cluster_nodes = new List<Node>();
+		foreach (Node node in nodes) 
+		{
+			if(node.cluster == cluster)
+			{
+				cluster_nodes.Add(node);
+			}
+		}
+		return cluster_nodes;
+	}
 }

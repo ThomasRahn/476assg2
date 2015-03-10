@@ -9,7 +9,9 @@ public class Node {
 		room1,
 		room2,
 		room3,
-		corridor
+		corridor1,
+		corridor2
+
 	}
 
 
@@ -40,7 +42,10 @@ public class Node {
 		{
 			cluster = Cluster.room3;
 		}else{
-			cluster = Cluster.corridor;
+			if(position.z < 0.0f)
+				cluster = Cluster.corridor1;
+			else 
+				cluster = Cluster.corridor2;
 		}
 		
 	}

@@ -1,11 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Code\PoV\PoVController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\..\..\Desktop\GameDev\476\Lab6\Assets\car-behavior.xml">
     <Files>
-      <File FileName="Assets\Code\Logic\GraphController.cs" Line="42" Column="1" />
-      <File FileName="Assets\Code\Logic\ObjectCreator.cs" Line="43" Column="3" />
-      <File FileName="Assets\Code\Logic\Graph.cs" Line="67" Column="1" />
-      <File FileName="Assets\Code\PoV\PoVController.cs" Line="57" Column="41" />
+      <File FileName="..\..\..\Desktop\GameDev\476\Lab6\Assets\car-behavior.xml" Line="17" Column="31" />
+      <File FileName="..\..\..\Desktop\GameDev\476\Lab6\Assets\CarAI.cs" Line="292" Column="14" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
