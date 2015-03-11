@@ -46,6 +46,8 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Code\Logic\Cluster.cs" />
+     <Compile Include="Assets\Code\Logic\ClusterManager.cs" />
      <Compile Include="Assets\Code\Logic\Edge.cs" />
      <Compile Include="Assets\Code\Logic\Graph.cs" />
      <Compile Include="Assets\Code\Logic\GraphController.cs" />

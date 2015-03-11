@@ -24,10 +24,13 @@ public class PoVController : MonoBehaviour {
 	public algorithm current;
 	private static Color default_color = Color.yellow;
 
+	public ClusterManager cm;
 	// Use this for initialization
 	void Start () {
 		graph = new Graph (true);
 		GameObject[] nodes_gameobject = GameObject.FindGameObjectsWithTag ("graphBlock");
+
+		cm = new ClusterManager (graph);
 
 		CreateNodes (nodes_gameobject);
 		Graph.originPosition = graph.nodes [Random.Range (0, graph.nodes.Count - 1)].position;
@@ -86,7 +89,7 @@ public class PoVController : MonoBehaviour {
 			dijkstra();
 		}else if (Input.GetKeyDown(KeyCode.C) && current != algorithm.cluster) {
 			current = algorithm.cluster;
-			//start = NPC.GetComponent<NPCMovement>().nextNode;
+			start = NPC.GetComponent<NPCMovement>().nextNode;
 			Reset();
 			cluster();
 		}
@@ -233,7 +236,63 @@ public class PoVController : MonoBehaviour {
 
 	void cluster()
 	{
-
+		open_list.Add (start);
+		start.prevNode = null;
+		start.heuristic = 0.0f;
+		Node current_node = null;
+		while (open_list.Count != 0) 
+		{
+			current_node = GetLowerCost();
+			if(current_node == null)
+				break;
+			
+			open_list.Remove(current_node);
+			
+			if(current_node.position == Graph.originPosition)
+			{
+				current_node.prevNode = closed_list[closed_list.Count - 1];
+				break;
+			}else{
+				foreach(Node node in current_node.getAllConnectingNodes())
+				{
+					ObjectCreator.Inspect(node);
+					
+					if(!open_list.Contains(node) && !closed_list.Contains(node))
+					{
+						node.prevNode = current_node;
+						float cost = Vector3.Distance(node.position, current_node.position);
+						if(node.cluster != current_node.cluster)
+						{
+							cost = cm.getCost(current_node.cluster,node.cluster);
+						}
+						
+						node.heuristic = cost + current_node.heuristic;
+						open_list.Add(node);
+					}
+					else
+					{
+						if(node.heuristic > (node.cost + current_node.heuristic))
+						{
+							node.heuristic = node.cost + current_node.heuristic;
+						}
+					}
+				}
+				closed_list.Add(current_node);
+			}
+			
+		}
+		
+		IList<Node> actual_path = new List<Node> ();
+		int counter = 0;
+		while (current_node.prevNode != null && counter < 200) 
+		{
+			counter++;
+			ObjectCreator.changeObjColor(current_node.obj, Color.cyan);
+			actual_path.Add(current_node);
+			current_node = current_node.prevNode;
+		}
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		NPC.GetComponent<NPCMovement> ().path = actual_path;
 	}
 
 	private Node GetLowerCost()

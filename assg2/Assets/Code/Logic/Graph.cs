@@ -116,7 +116,7 @@ public class Graph {
 
 	public List<Node> GetRoomNodes(Node.Cluster cluster)
 	{
-		IList<Node> cluster_nodes = new List<Node>();
+		List<Node> cluster_nodes = new List<Node>();
 		foreach (Node node in nodes) 
 		{
 			if(node.cluster == cluster)

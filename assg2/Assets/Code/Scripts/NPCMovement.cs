@@ -10,68 +10,58 @@ public class NPCMovement : MonoBehaviour {
 	public Vector3 next;
 	public int pathCount = 0;
 	
-	public float MaxAcceleration = 10.0f;
+	public float MaxAcceleration = 3.0f;
 	public Vector3 Velocity = Vector3.zero;
-	public float MaxVelocity = 0.5f;
-	public float slowDown = 0.0f;
+	public float MaxVelocity = 4.0f;
 	public float rotateSpeed = 100.0f;
+
+	public int current_node = 0;
+	public Vector3 target_position;
 	// Use this for initialization
 	void Start () {
-		
+
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		pathCount = path.Count;
-		if (path.Count != 0 ) {
-			if (nextNode == null) {
-				nextNode = path [path.Count - 1];
-				next = nextNode.position;
-				path.Remove (nextNode);
-			}
-			if (nextNode.position == (this.transform.position - new Vector3 (0, 0.5f, 0))) {
-				currentPosition = nextNode;
-				nextNode = path [path.Count - 1];
-				next = nextNode.position;
-				path.Remove (nextNode);
-			}
-			
-			if (nextNode != null) {
-				this.transform.rotation = 
-					Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation (nextNode.obj.transform.position - this.transform.position),rotateSpeed * Time.deltaTime);
-				if(this.transform.forward == (nextNode.position - this.transform.position).normalized)
-					this.transform.position = Vector3.MoveTowards (this.transform.position, nextNode.position + new Vector3 (0, 0.5f, 0), Time.deltaTime);
-				//UpdatePosition();
-			}
-			
-		} else {
-			
-			if(nextNode != null && this.transform.position != Graph.originPosition){
-				this.transform.position = Vector3.MoveTowards (this.transform.position, nextNode.position + new Vector3 (0, 0.5f, 0), Time.deltaTime);
-				//UpdatePosition();
-			}
-			
-			if(this.transform.position == Graph.originPosition)
+
+	void Update()
+	{
+		Node target = getTarget();
+		if (target != null) {
+			target_position = target.position + new Vector3 (0, 1, 0);
+			nextNode = target;
+
+			Vector3 accel = (MaxAcceleration) * (target_position - this.transform.position).normalized;
+		
+			Velocity = Velocity + accel * Time.deltaTime;
+		
+			Velocity = Vector3.ClampMagnitude (Velocity, MaxVelocity);
+
+			if(Vector3.Distance(Graph.originPosition + new Vector3(0,1,0),this.transform.position) < 0.75f)
 			{
-				nextNode = null;
+				Velocity = Vector3.Scale(Velocity, new Vector3(0.9f,0,0.9f));
+			}
+		
+			this.transform.position = this.transform.position + Velocity * Time.deltaTime;
+		}
+		if (Velocity.sqrMagnitude > 0f)
+			transform.rotation = Quaternion.LookRotation (Velocity.normalized, Vector3.up);
+	}
+
+	private Node getTarget(){
+
+		Node target = null;
+		if (path.Count != 0 ) {
+			current_node = path.Count - 1;
+			if(current_node < 0)
+				return null;
+
+			target = path[current_node];
+			Vector3 temp = target.position + new Vector3(0,1,0);
+			if(Vector3.Distance(temp, this.transform.position) <= 0.2f)
+			{
+				current_node --;
+				path.RemoveAt(current_node+1);
 			}
 		}
-	}
-	
-	public void UpdatePosition(){ 
-		
-		Vector3 accel;
-		if(Vector3.Distance(this.transform.position, nextNode.position) < slowDown){
-			accel = Vector3.zero;
-		}else{
-			accel = (MaxAcceleration) * (nextNode.position - this.transform.position).normalized;
-		}
-		
-		Velocity = Velocity + accel * Time.deltaTime;
-		
-		Velocity = Vector3.ClampMagnitude (Velocity, MaxVelocity);
-		Velocity.y = 0.0f;
-		
-		this.transform.position = this.transform.position + Velocity * Time.deltaTime;
+		return target;
 	}
 }

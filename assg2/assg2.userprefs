@@ -1,9 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench ActiveDocument="..\..\..\Desktop\GameDev\476\Lab6\Assets\car-behavior.xml">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Code\Scripts\NPCMovement.cs">
     <Files>
-      <File FileName="..\..\..\Desktop\GameDev\476\Lab6\Assets\car-behavior.xml" Line="17" Column="31" />
-      <File FileName="..\..\..\Desktop\GameDev\476\Lab6\Assets\CarAI.cs" Line="292" Column="14" />
+      <File FileName="Assets\Code\Scripts\NPCMovement.cs" Line="41" Column="5" />
+      <File FileName="Assets\Code\Logic\ClusterManager.cs" Line="74" Column="24" />
+      <File FileName="Assets\Code\Logic\GraphController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\Logic\Cluster.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\Logic\Graph.cs" Line="1" Column="1" />
+      <File FileName="Assets\Code\PoV\PoVController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

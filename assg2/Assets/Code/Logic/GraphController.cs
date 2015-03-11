@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using System.
 
 public class GraphController : MonoBehaviour {
 
@@ -20,8 +19,9 @@ public class GraphController : MonoBehaviour {
 	public Text behaviourType;
 	public GameObject NPC;
 
-	public Tuple lookUpTable = new Tuple<Node.Cluster,Node.Cluster, float>();
+	public ClusterManager cm;
 
+	//3 possible A* algorithms
 	public enum algorithm {
 		dijkstra,
 		euclidean,
@@ -29,14 +29,20 @@ public class GraphController : MonoBehaviour {
 	};
 
 	void Start () {
+		//Create the graph
 		graph = new Graph ();
 
+		//Set initial spawn point for user
 		start = graph.FindNode (new Vector3 (-3.25f,0,-2.95f));
 		ObjectCreator.changeObjColor (start.obj, Color.cyan);
 
+		//Create NPC
 		NPC = ObjectCreator.CreateNPC (start);
 
-		GenerateLookUpTable ();
+		//Makew the cluster manager
+		cm = new ClusterManager (graph);
+
+		//Initial algorithm
 		current = algorithm.euclidean;
 		euclidean ();
 	}
@@ -55,8 +61,9 @@ public class GraphController : MonoBehaviour {
 			dijkstra();
 		}else if (Input.GetKeyDown(KeyCode.C) && current != algorithm.cluster) {
 			current = algorithm.cluster;
-			//start = NPC.GetComponent<NPCMovement>().nextNode;
+			start = NPC.GetComponent<NPCMovement>().nextNode;
 			Reset();
+			cluster();
 		}
 		behaviourType.text = "Algorith: " + current.ToString ();
 
@@ -84,7 +91,7 @@ public class GraphController : MonoBehaviour {
 						break;
 					case algorithm.cluster:
 						Reset();
-						//cluster();
+						cluster();
 						break;
 					}
 					ObjectCreator.changeObjColor(node.obj,Color.red);
@@ -94,11 +101,7 @@ public class GraphController : MonoBehaviour {
 
 	}
 
-	private void GenerateLookUpTable()
-	{
-
-	}
-
+	//Resets all nodes to un-inspected and clears lists.
 	private void Reset()
 	{
 		foreach (Node n in graph.nodes) {
@@ -113,6 +116,7 @@ public class GraphController : MonoBehaviour {
 		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 
+	//Performs A* algorithm using euclidean distance to find the shortest path.
 	void euclidean()
 	{
 		open_list.Add (start);
@@ -168,6 +172,7 @@ public class GraphController : MonoBehaviour {
 		NPC.GetComponent<NPCMovement> ().path = actual_path;
 	}
 
+	//Performs Dijkstra to find the shortest path. Null heuristic (no priority)
 	void dijkstra()
 	{
 		IList<Node> pathList = new List<Node>();
@@ -206,26 +211,76 @@ public class GraphController : MonoBehaviour {
 		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
 	}
 
-	private void GenerateLookUp()
+	void cluster()
 	{
-		//5 sections, Room1, Room2, Room3, Corridor1, Corridor2
-		List<Node> room1_nodes = graph.GetRoomNodes (Node.Cluster.room1);
-		List<Node> room2_nodes = graph.GetRoomNodes (Node.Cluster.room2);
-
-		float lowest_distance_r1_r2 = 0.0f;
-		foreach (Node n in room1_nodes) {
-			foreach(Node n2 in room2_nodes){
-				float distance = Vector3.Distance(n.position,n2.position);
-				if(distance < lowest_distance_r1_r2 || lowest_distance_r1_r2 <= 0.0f)
+		open_list.Add (start);
+		start.prevNode = null;
+		start.heuristic = 0.0f;
+		Node current_node = null;
+		while (open_list.Count != 0) 
+		{
+			current_node = GetLowerCost();
+			if(current_node == null)
+				break;
+			
+			open_list.Remove(current_node);
+			
+			if(current_node.position == Graph.originPosition)
+			{
+				Debug.Log("breaking early");
+				current_node.prevNode = closed_list[closed_list.Count - 1];
+				break;
+			}else{
+				foreach(Node node in current_node.getAllConnectingNodes())
 				{
-					lowest_distance_r1_r2 = distance;
-				}
-			}
-		}
+					ObjectCreator.Inspect(node);
+					
+					if(!open_list.Contains(node) && !closed_list.Contains(node))
+					{
+						node.prevNode = current_node;
+						float cost = Vector3.Distance(node.position, current_node.position);
+						if(node.cluster != current_node.cluster)
+						{
+							cost = cm.getCost(current_node.cluster,node.cluster);
+						}
 
-		 
+						node.heuristic = cost + current_node.heuristic;
+						open_list.Add(node);
+					}
+					else
+					{
+						float cost = Vector3.Distance(node.position, current_node.position);
+						if(node.cluster != current_node.cluster)
+						{
+							cost = cm.getCost(current_node.cluster,node.cluster);
+						}
+
+						if(node.heuristic > (cost + current_node.heuristic))
+						{
+							node.heuristic = cost + current_node.heuristic;
+						}
+					}
+				}
+				closed_list.Add(current_node);
+			}
+			
+		}
+		
+		IList<Node> actual_path = new List<Node> ();
+		int counter = 0;
+		while (current_node.prevNode != null && counter < 200) 
+		{
+			counter++;
+			ObjectCreator.changeObjColor(current_node.obj, Color.cyan);
+			actual_path.Add(current_node);
+			current_node = current_node.prevNode;
+		}
+		ObjectCreator.changeObjColor (graph.FindNode(Graph.originPosition).obj, Color.red);
+		NPC.GetComponent<NPCMovement> ().path = actual_path;
 	}
 
+
+	//Gets the best possible node with the lowest heuristic from the open list
 	private Node GetLowerCost()
 	{
 		if (open_list.Count == 0) {
